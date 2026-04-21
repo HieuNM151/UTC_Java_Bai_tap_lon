@@ -1,7 +1,7 @@
-package com.quanlydatvemaybay.dao;
+package com.quanlybanhang.dao;
 
-import com.quanlydatvemaybay.config.DatabaseConfig;
-import com.quanlydatvemaybay.entity.User;
+import com.quanlybanhang.config.DatabaseConfig;
+import com.quanlybanhang.entity.User;
 
 import java.sql.*;
 

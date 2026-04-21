@@ -1,9 +1,9 @@
-package com.quanlydatvemaybay.ui;
+package com.quanlybanhang.ui;
 
-import com.quanlydatvemaybay.dao.ChiTietSPDAO;
-import com.quanlydatvemaybay.dao.HoaDonDAO;
-import com.quanlydatvemaybay.dao.KhachHangDAO;
-import com.quanlydatvemaybay.entity.*;
+import com.quanlybanhang.dao.ChiTietSPDAO;
+import com.quanlybanhang.dao.HoaDonDAO;
+import com.quanlybanhang.dao.KhachHangDAO;
+import com.quanlybanhang.entity.*;
 
 import javax.swing.*;
 import javax.swing.border.*;

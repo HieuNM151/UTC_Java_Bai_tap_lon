@@ -1,6 +1,6 @@
-package com.quanlydatvemaybay;
+package com.quanlybanhang;
 
-import com.quanlydatvemaybay.ui.LoginForm;
+import com.quanlybanhang.ui.LoginForm;
 
 import javax.swing.*;
 

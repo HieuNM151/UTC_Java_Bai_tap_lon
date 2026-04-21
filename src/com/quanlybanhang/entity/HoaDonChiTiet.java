@@ -1,4 +1,4 @@
-package com.quanlydatvemaybay.entity;
+package com.quanlybanhang.entity;
 
 import java.math.BigDecimal;
 

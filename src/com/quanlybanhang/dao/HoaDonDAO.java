@@ -1,8 +1,8 @@
-package com.quanlydatvemaybay.dao;
+package com.quanlybanhang.dao;
 
-import com.quanlydatvemaybay.config.DatabaseConfig;
-import com.quanlydatvemaybay.entity.HoaDon;
-import com.quanlydatvemaybay.entity.HoaDonChiTiet;
+import com.quanlybanhang.config.DatabaseConfig;
+import com.quanlybanhang.entity.HoaDon;
+import com.quanlybanhang.entity.HoaDonChiTiet;
 
 import java.math.BigDecimal;
 import java.sql.*;

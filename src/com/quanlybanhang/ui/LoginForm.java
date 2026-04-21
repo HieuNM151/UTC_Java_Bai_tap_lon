@@ -1,7 +1,7 @@
-package com.quanlydatvemaybay.ui;
+package com.quanlybanhang.ui;
 
-import com.quanlydatvemaybay.dao.UserDAO;
-import com.quanlydatvemaybay.entity.User;
+import com.quanlybanhang.dao.UserDAO;
+import com.quanlybanhang.entity.User;
 
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;

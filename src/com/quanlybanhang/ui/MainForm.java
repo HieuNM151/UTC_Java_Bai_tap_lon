@@ -1,6 +1,6 @@
-package com.quanlydatvemaybay.ui;
+package com.quanlybanhang.ui;
 
-import com.quanlydatvemaybay.entity.User;
+import com.quanlybanhang.entity.User;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

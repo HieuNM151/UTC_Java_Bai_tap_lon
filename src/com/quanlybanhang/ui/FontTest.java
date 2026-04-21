@@ -1,4 +1,4 @@
-package com.quanlydatvemaybay.ui;
+package com.quanlybanhang.ui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
