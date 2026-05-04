@@ -13,6 +13,17 @@ public class KhachHangDAO {
         return DatabaseConfig.getInstance().getConnection();
     }
 
+    /** Lấy tất cả khách hàng */
+    public List<KhachHang> getAll() {
+        String sql = "SELECT * FROM KhachHang ORDER BY Ten";
+        List<KhachHang> list = new ArrayList<>();
+        try (PreparedStatement ps = getConn().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
     /** Tim kiem khach hang theo ten, sdt, email */
     public List<KhachHang> search(String keyword) {
         String sql = "SELECT * FROM KhachHang " +

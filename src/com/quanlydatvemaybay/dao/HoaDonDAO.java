@@ -15,11 +15,133 @@ public class HoaDonDAO {
         return DatabaseConfig.getInstance().getConnection();
     }
 
-    /**
-     * Tao hoa don moi + luu chi tiet + giam ton kho.
-     * Dung transaction de dam bao toan ven du lieu.
-     * @return Id hoa don moi tao, -1 neu that bai
-     */
+    // ═══════════════════════════════════════════════════════
+    // CRUD CƠ BẢN
+    // ═══════════════════════════════════════════════════════
+
+    /** Lấy tất cả hóa đơn */
+    public List<HoaDon> getAll() {
+        String sql = "SELECT h.*, k.Ten AS TenKhachHang, nv.Ten AS TenNhanVien " +
+                     "FROM HoaDon h " +
+                     "LEFT JOIN KhachHang k ON h.IdKH = k.Id " +
+                     "LEFT JOIN Users nv ON h.IdNV = nv.Id " +
+                     "ORDER BY h.NgayTao DESC";
+        List<HoaDon> list = new ArrayList<>();
+        try (PreparedStatement ps = getConn().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(mapHoaDon(rs));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /** Tìm kiếm hóa đơn */
+    public List<HoaDon> search(String keyword) {
+        String sql = "SELECT h.*, k.Ten AS TenKhachHang, nv.Ten AS TenNhanVien " +
+                     "FROM HoaDon h " +
+                     "LEFT JOIN KhachHang k ON h.IdKH = k.Id " +
+                     "LEFT JOIN Users nv ON h.IdNV = nv.Id " +
+                     "WHERE h.Ma LIKE ? OR k.Ten LIKE ? OR nv.Ten LIKE ? " +
+                     "ORDER BY h.NgayTao DESC";
+        List<HoaDon> list = new ArrayList<>();
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+            String kw = "%" + keyword + "%";
+            ps.setString(1, kw);
+            ps.setString(2, kw);
+            ps.setString(3, kw);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(mapHoaDon(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /** Lấy hóa đơn theo ID */
+    public HoaDon getById(int id) {
+        String sql = "SELECT h.*, k.Ten AS TenKhachHang, nv.Ten AS TenNhanVien " +
+                     "FROM HoaDon h " +
+                     "LEFT JOIN KhachHang k ON h.IdKH = k.Id " +
+                     "LEFT JOIN Users nv ON h.IdNV = nv.Id " +
+                     "WHERE h.Id = ?";
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapHoaDon(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /** Xóa hóa đơn */
+    public boolean delete(int id) {
+        try {
+            // Xóa chi tiết hóa đơn trước
+            String sqlDetail = "DELETE FROM HoaDonChiTiet WHERE IdHD = ?";
+            try (PreparedStatement ps = getConn().prepareStatement(sqlDetail)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            // Xóa hóa đơn
+            String sql = "DELETE FROM HoaDon WHERE Id = ?";
+            try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+                ps.setInt(1, id);
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /** Thêm hóa đơn mới (đơn giản) */
+    public boolean add(HoaDon hd) {
+        String sql = "INSERT INTO HoaDon (IdKH, IdNV, Ma, NgayTao, NgayThanhToan, TinhTrang, GhiChu, TongTien) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+            ps.setObject(1, hd.getIdKH());
+            ps.setObject(2, hd.getIdNV());
+            ps.setString(3, hd.getMa());
+            ps.setObject(4, hd.getNgayTao());
+            ps.setObject(5, hd.getNgayThanhToan());
+            ps.setObject(6, hd.getTinhTrang());
+            ps.setString(7, hd.getGhiChu());
+            ps.setObject(8, hd.getTongTien());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /** Cập nhật hóa đơn */
+    public boolean update(HoaDon hd) {
+        String sql = "UPDATE HoaDon SET IdKH=?, IdNV=?, Ma=?, NgayTao=?, NgayThanhToan=?, TinhTrang=?, GhiChu=?, TongTien=? WHERE Id=?";
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
+            ps.setObject(1, hd.getIdKH());
+            ps.setObject(2, hd.getIdNV());
+            ps.setString(3, hd.getMa());
+            ps.setObject(4, hd.getNgayTao());
+            ps.setObject(5, hd.getNgayThanhToan());
+            ps.setObject(6, hd.getTinhTrang());
+            ps.setString(7, hd.getGhiChu());
+            ps.setObject(8, hd.getTongTien());
+            ps.setInt(9, hd.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // TÁO HÓA ĐƠN PHỨC TẠP (với chi tiết)
+    // ═══════════════════════════════════════════════════════
     public int taoHoaDon(HoaDon hd, List<HoaDonChiTiet> chiTietList) {
         Connection conn = null;
         try {
@@ -151,8 +273,12 @@ public class HoaDonDAO {
         if (!rs.wasNull()) h.setTinhTrang(tt);
         h.setGhiChu(rs.getString("GhiChu"));
         h.setTongTien(rs.getBigDecimal("TongTien"));
-        try { h.setTenKhachHang(rs.getString("TenKH")); } catch (Exception ignored) {}
-        try { h.setTenNhanVien(rs.getString("TenNV")); } catch (Exception ignored) {}
+        try { h.setTenKhachHang(rs.getString("TenKhachHang")); } catch (Exception ignored) {}
+        try { h.setTenNhanVien(rs.getString("TenNhanVien")); } catch (Exception ignored) {}
         return h;
+    }
+
+    private HoaDon mapHoaDon(ResultSet rs) throws SQLException {
+        return mapRow(rs);
     }
 }
