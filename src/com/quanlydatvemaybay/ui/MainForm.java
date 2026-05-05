@@ -2,6 +2,8 @@ package com.quanlydatvemaybay.ui;
 
 import com.quanlydatvemaybay.entity.User;
 import com.quanlydatvemaybay.ui.panels.SanPhamPanel;
+import com.quanlydatvemaybay.ui.panels.HoaDonPanel;
+import com.quanlydatvemaybay.ui.panels.KhachHangPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -495,6 +497,14 @@ public class MainForm extends JFrame {
             case "San pham" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
                 panel = new SanPhamPanel();
+            }
+            case "Khach hang" -> {
+                contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+                panel = new KhachHangPanel();
+            }
+            case "Hoa don" -> {
+                contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+                panel = new HoaDonPanel();
             }
 
             default -> {
