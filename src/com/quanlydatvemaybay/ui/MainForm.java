@@ -4,6 +4,7 @@ import com.quanlydatvemaybay.entity.User;
 import com.quanlydatvemaybay.ui.panels.SanPhamPanel;
 import com.quanlydatvemaybay.ui.panels.HoaDonPanel;
 import com.quanlydatvemaybay.ui.panels.KhachHangPanel;
+import com.quanlydatvemaybay.ui.panels.DashboardPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -38,22 +39,40 @@ public class MainForm extends JFrame {
     private JLabel activeItem = null;
 
     private static final String[] MENU_VI = {
-            "Tong quan", "Ban hang", "San pham",
-            "Khach hang", "Hoa don", "Khuyen mai", "Bao cao"
+            "Tổng quan", "Bán hàng", "Sản phẩm",
+            "Khách hàng", "Hóa đơn", "Khuyến mãi", "Báo cáo"
     };
-    // Ký tự icon Unicode từ FontTest - hiển thị tốt với font emoji
+
+    // Dùng ký tự ASCII đơn giản để tránh lỗi font
     private static final String[] MENU_PREFIX = {
-            "▣", "◉", "▦", "◎", "▤", "◆", "▧"
+            "■", "●", "▪", "○", "≡", "◆", "▶"
     };
 
     public MainForm(User user) {
         this.currentUser = user;
-        setTitle("Quan Ly Ban Hang — " + user.getHoTenDay());
+        setTitle("Quản Lý Bán Hàng — " + user.getHoTenDay());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1200, 700);
         setLocationRelativeTo(null);
         setMinimumSize(new Dimension(1000, 600));
         initUI();
+    }
+
+    // ══════════════════════════════════════════════════════
+    // FONT HELPER — chọn font hỗ trợ tiếng Việt tốt nhất
+    // ══════════════════════════════════════════════════════
+    private static Font getViFont(int style, int size) {
+        String[] candidates = {
+                "Segoe UI",        // Windows — hỗ trợ tiếng Việt rất tốt
+                "Arial Unicode MS",
+                "Noto Sans",       // Linux
+                "SansSerif"        // fallback luôn có
+        };
+        for (String name : candidates) {
+            Font f = new Font(name, style, size);
+            if (!f.getFamily().equals("Dialog")) return f;
+        }
+        return new Font("SansSerif", style, size);
     }
 
     private void initUI() {
@@ -99,7 +118,6 @@ public class MainForm extends JFrame {
         p.setOpaque(false);
         p.setMaximumSize(new Dimension(220, 68));
 
-        // Vẽ icon box thay emoji
         JPanel iconBox = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -107,7 +125,7 @@ public class MainForm extends JFrame {
                 g2.setColor(ACCENT);
                 g2.fillRoundRect(0, 0, 38, 38, 10, 10);
                 g2.setColor(Color.WHITE);
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 17));
+                g2.setFont(getViFont(Font.BOLD, 17));
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString("Q", (38 - fm.stringWidth("Q")) / 2, (38 + fm.getAscent() - fm.getDescent()) / 2);
                 g2.dispose();
@@ -119,11 +137,11 @@ public class MainForm extends JFrame {
         JPanel texts = new JPanel();
         texts.setOpaque(false);
         texts.setLayout(new BoxLayout(texts, BoxLayout.Y_AXIS));
-        JLabel t1 = new JLabel("Quan Ly");
-        t1.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        JLabel t1 = new JLabel("Quản Lý");
+        t1.setFont(getViFont(Font.BOLD, 14));
         t1.setForeground(Color.WHITE);
-        JLabel t2 = new JLabel("Ban Hang");
-        t2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        JLabel t2 = new JLabel("Bán Hàng");
+        t2.setFont(getViFont(Font.PLAIN, 11));
         t2.setForeground(TEXT_LIGHT);
         texts.add(t1);
         texts.add(t2);
@@ -151,8 +169,8 @@ public class MainForm extends JFrame {
                 super.paintComponent(g);
             }
         };
-        // Dùng Segoe UI Emoji để hiển thị icon Unicode đẹp
-        lbl.setFont(new Font("Segoe UI Emoji", initActive ? Font.BOLD : Font.PLAIN, 13));
+        // ✅ Dùng getViFont() thay vì "Segoe UI Emoji"
+        lbl.setFont(getViFont(initActive ? Font.BOLD : Font.PLAIN, 13));
         lbl.setForeground(initActive ? Color.WHITE : TEXT_LIGHT);
         lbl.setBorder(new EmptyBorder(11, 12, 11, 12));
         lbl.setMaximumSize(new Dimension(220, 44));
@@ -176,14 +194,16 @@ public class MainForm extends JFrame {
             @Override public void mouseClicked(MouseEvent e) {
                 if (activeItem != null) {
                     activeItem.putClientProperty("active", false);
-                    activeItem.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 13));
+                    // ✅ Sửa: dùng getViFont() thay vì "Segoe UI Emoji"
+                    activeItem.setFont(getViFont(Font.PLAIN, 13));
                     activeItem.setForeground(TEXT_LIGHT);
                     activeItem.repaint();
                 }
                 activeItem = lbl;
                 lbl.putClientProperty("active", true);
                 lbl.putClientProperty("hover", false);
-                lbl.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+                // ✅ Sửa: dùng getViFont() thay vì "Segoe UI Emoji"
+                lbl.setFont(getViFont(Font.BOLD, 13));
                 lbl.setForeground(Color.WHITE);
                 lbl.repaint();
                 switchPanel(labelText);
@@ -197,7 +217,6 @@ public class MainForm extends JFrame {
         p.setOpaque(false);
         p.setMaximumSize(new Dimension(220, 68));
 
-        // Avatar vẽ tay
         JPanel avatar = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -205,7 +224,7 @@ public class MainForm extends JFrame {
                 g2.setColor(ACCENT);
                 g2.fillOval(0, 0, 36, 36);
                 g2.setColor(Color.WHITE);
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 15));
+                g2.setFont(getViFont(Font.BOLD, 15));
                 String s = String.valueOf(currentUser.getTen().charAt(0)).toUpperCase();
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString(s, (36 - fm.stringWidth(s)) / 2, (36 + fm.getAscent() - fm.getDescent()) / 2);
@@ -219,16 +238,16 @@ public class MainForm extends JFrame {
         info.setOpaque(false);
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
         JLabel name = new JLabel(currentUser.getTen());
-        name.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        name.setFont(getViFont(Font.BOLD, 12));
         name.setForeground(Color.WHITE);
-        JLabel role = new JLabel("Nhan vien");
-        role.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        JLabel role = new JLabel("Nhân viên");
+        role.setFont(getViFont(Font.PLAIN, 11));
         role.setForeground(TEXT_LIGHT);
         info.add(name);
         info.add(role);
 
-        JButton btnOut = new JButton("x Out");
-        btnOut.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        JButton btnOut = new JButton("Đăng xuất");
+        btnOut.setFont(getViFont(Font.BOLD, 11));
         btnOut.setForeground(new Color(248, 113, 113));
         btnOut.setContentAreaFilled(false);
         btnOut.setBorderPainted(false);
@@ -236,7 +255,7 @@ public class MainForm extends JFrame {
         btnOut.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnOut.addActionListener(e -> {
             int r = JOptionPane.showConfirmDialog(this,
-                    "Ban co chac muon dang xuat?", "Dang xuat",
+                    "Bạn có chắc muốn đăng xuất?", "Đăng xuất",
                     JOptionPane.YES_NO_OPTION);
             if (r == JOptionPane.YES_OPTION) {
                 dispose();
@@ -267,8 +286,8 @@ public class MainForm extends JFrame {
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(MAIN_BG);
-        contentPanel.setBorder(new EmptyBorder(24, 28, 24, 28));
-        contentPanel.add(buildDashboard(), BorderLayout.CENTER);
+        contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        contentPanel.add(new DashboardPanel(), BorderLayout.CENTER);
 
         w.add(contentPanel, BorderLayout.CENTER);
         return w;
@@ -281,12 +300,12 @@ public class MainForm extends JFrame {
                 new MatteBorder(0, 0, 1, 0, BORDER_C),
                 new EmptyBorder(14, 28, 14, 28)));
 
-        JLabel greeting = new JLabel("Xin chao, " + currentUser.getHoTenDay());
-        greeting.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        JLabel greeting = new JLabel("Xin chào, " + currentUser.getHoTenDay());
+        greeting.setFont(getViFont(Font.BOLD, 15));
         greeting.setForeground(TEXT_DARK);
 
         lblClock = new JLabel();
-        lblClock.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblClock.setFont(getViFont(Font.PLAIN, 13));
         lblClock.setForeground(TEXT_MID);
 
         p.add(greeting, BorderLayout.WEST);
@@ -307,9 +326,9 @@ public class MainForm extends JFrame {
         p.setOpaque(false);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
-        JLabel title = lbl("Tong quan he thong", new Font("Segoe UI", Font.BOLD, 20), TEXT_DARK);
+        JLabel title = lbl("Tổng quan hệ thống", getViFont(Font.BOLD, 20), TEXT_DARK);
         title.setAlignmentX(LEFT_ALIGNMENT);
-        JLabel sub = lbl("Thong ke nhanh hom nay", new Font("Segoe UI", Font.PLAIN, 13), TEXT_MID);
+        JLabel sub = lbl("Thống kê", getViFont(Font.PLAIN, 13), TEXT_MID);
         sub.setAlignmentX(LEFT_ALIGNMENT);
 
         p.add(title);
@@ -322,26 +341,12 @@ public class MainForm extends JFrame {
         cards.setOpaque(false);
         cards.setMaximumSize(new Dimension(Integer.MAX_VALUE, 128));
         cards.setAlignmentX(LEFT_ALIGNMENT);
-        cards.add(buildStatCard("Hoa don hom nay", "—", C_INDIGO, "HD"));
-        cards.add(buildStatCard("Doanh thu",       "—", C_TEAL,   "DT"));
-        cards.add(buildStatCard("Khach hang",      "—", C_AMBER,  "KH"));
-        cards.add(buildStatCard("San pham",        "—", C_ROSE,   "SP"));
+        cards.add(buildStatCard("Hóa đơn hôm nay",    "—", C_INDIGO, "HD"));
+        cards.add(buildStatCard("Doanh thu",            "—", C_TEAL,   "DT"));
+        cards.add(buildStatCard("Tiền lời",             "—", C_AMBER,  "TL"));
+        cards.add(buildStatCard("Sản phẩm bán chạy",   "—", C_ROSE,   "SP"));
         p.add(cards);
         p.add(Box.createVerticalStrut(28));
-
-        // Quick actions
-        JLabel qa = lbl("Thao tac nhanh", new Font("Segoe UI", Font.BOLD, 15), TEXT_DARK);
-        qa.setAlignmentX(LEFT_ALIGNMENT);
-        p.add(qa);
-        p.add(Box.createVerticalStrut(12));
-
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        actions.setOpaque(false);
-        actions.setAlignmentX(LEFT_ALIGNMENT);
-        actions.add(buildActionBtn("+ Tao hoa don moi",  C_INDIGO));
-        actions.add(buildActionBtn("+ Them san pham",    C_TEAL));
-        actions.add(buildActionBtn("+ Them khach hang",  C_AMBER));
-        p.add(actions);
 
         return p;
     }
@@ -372,7 +377,6 @@ public class MainForm extends JFrame {
         card.setBorder(new EmptyBorder(18, 18, 14, 18));
         card.setOpaque(false);
 
-        // Icon badge vẽ tay
         JPanel badge = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -381,7 +385,7 @@ public class MainForm extends JFrame {
                 g2.setColor(soft);
                 g2.fillRoundRect(0, 0, 40, 40, 10, 10);
                 g2.setColor(accent);
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                g2.setFont(getViFont(Font.BOLD, 13));
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString(abbr, (40 - fm.stringWidth(abbr)) / 2,
                         (40 + fm.getAscent() - fm.getDescent()) / 2);
@@ -393,10 +397,10 @@ public class MainForm extends JFrame {
         badge.setOpaque(false);
         badge.setAlignmentX(LEFT_ALIGNMENT);
 
-        JLabel lVal = lbl(value, new Font("Segoe UI", Font.BOLD, 26), TEXT_DARK);
+        JLabel lVal = lbl(value, getViFont(Font.BOLD, 26), TEXT_DARK);
         lVal.setAlignmentX(LEFT_ALIGNMENT);
 
-        JLabel lLbl = lbl(labelText, new Font("Segoe UI", Font.PLAIN, 12), TEXT_MID);
+        JLabel lLbl = lbl(labelText, getViFont(Font.PLAIN, 12), TEXT_MID);
         lLbl.setAlignmentX(LEFT_ALIGNMENT);
 
         card.add(badge);
@@ -428,7 +432,7 @@ public class MainForm extends JFrame {
                 super.paintComponent(g);
             }
         };
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setFont(getViFont(Font.BOLD, 13));
         btn.setForeground(color);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
@@ -452,24 +456,24 @@ public class MainForm extends JFrame {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(99,102,241,18));
-                g2.fillRoundRect(0,0,80,80,20,20);
-                g2.setColor(new Color(99,102,241,160));
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 26));
-                String s = title.length() >= 2 ? title.substring(0,2).toUpperCase() : title.toUpperCase();
+                g2.setColor(new Color(99, 102, 241, 18));
+                g2.fillRoundRect(0, 0, 80, 80, 20, 20);
+                g2.setColor(new Color(99, 102, 241, 160));
+                g2.setFont(getViFont(Font.BOLD, 26));
+                String s = title.length() >= 2 ? title.substring(0, 2).toUpperCase() : title.toUpperCase();
                 FontMetrics fm = g2.getFontMetrics();
-                g2.drawString(s,(80-fm.stringWidth(s))/2,(80+fm.getAscent()-fm.getDescent())/2);
+                g2.drawString(s, (80 - fm.stringWidth(s)) / 2, (80 + fm.getAscent() - fm.getDescent()) / 2);
                 g2.dispose();
             }
-            @Override public Dimension getPreferredSize() { return new Dimension(80,80); }
+            @Override public Dimension getPreferredSize() { return new Dimension(80, 80); }
             @Override public Dimension getMaximumSize()   { return getPreferredSize(); }
         };
         iconBox.setOpaque(false);
         iconBox.setAlignmentX(CENTER_ALIGNMENT);
 
-        JLabel l1 = lbl(title, new Font("Segoe UI", Font.BOLD, 20), TEXT_DARK);
+        JLabel l1 = lbl(title, getViFont(Font.BOLD, 20), TEXT_DARK);
         l1.setAlignmentX(CENTER_ALIGNMENT);
-        JLabel l2 = lbl("Chuc nang dang phat trien...", new Font("Segoe UI", Font.PLAIN, 13), TEXT_MID);
+        JLabel l2 = lbl("Chức năng đang phát triển...", getViFont(Font.PLAIN, 13), TEXT_MID);
         l2.setAlignmentX(CENTER_ALIGNMENT);
 
         p.add(Box.createVerticalGlue());
@@ -486,27 +490,26 @@ public class MainForm extends JFrame {
         contentPanel.removeAll();
         JPanel panel;
         switch (menu) {
-            case "Tong quan" -> {
-                contentPanel.setBorder(new EmptyBorder(24, 28, 24, 28));
-                panel = buildDashboard();
+            case "Tổng quan" -> {
+                contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+                panel = new DashboardPanel();
             }
-            case "Ban hang" -> {
+            case "Bán hàng" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
                 panel = new BanHangPanel(currentUser);
             }
-            case "San pham" -> {
+            case "Sản phẩm" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
                 panel = new SanPhamPanel();
             }
-            case "Khach hang" -> {
+            case "Khách hàng" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
                 panel = new KhachHangPanel();
             }
-            case "Hoa don" -> {
+            case "Hóa đơn" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
                 panel = new HoaDonPanel();
             }
-
             default -> {
                 contentPanel.setBorder(new EmptyBorder(24, 28, 24, 28));
                 panel = buildPlaceholder(menu);
