@@ -3,6 +3,7 @@ package com.quanlydatvemaybay.entity;
 public class ChatLieu {
     private int id;
     private String ten;
+
     public ChatLieu() {}
 
     public ChatLieu(int id, String ten) {
