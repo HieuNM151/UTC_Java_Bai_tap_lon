@@ -3,8 +3,9 @@
 
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 LIB_DIR="$PROJECT_DIR/lib"
-JAR_NAME="$PROJECT_DIR/quanlydatvemaybay.jar"
+JAR_NAME="$PROJECT_DIR/quanlybanhang.jar"
 BIN_DIR="$PROJECT_DIR/bin"
+MAIN_CLASS="com.quanlybanhang.Main"
 
 # Find JDBC jar
 JDBC_JAR=""
@@ -23,7 +24,7 @@ if [[ -d "$BIN_DIR" ]] && [[ -n "$(ls -A $BIN_DIR 2>/dev/null)" ]]; then
         CP="$BIN_DIR"
     fi
     echo "Running from compiled classes..."
-    java -Dfile.encoding=UTF-8 -cp "$CP" com.quanlydatvemaybay.Main
+    java -Dfile.encoding=UTF-8 -cp "$CP" "$MAIN_CLASS"
 elif [[ -f "$JAR_NAME" ]]; then
     # Run from JAR
     if [[ -n "$JDBC_JAR" ]]; then
@@ -32,7 +33,7 @@ elif [[ -f "$JAR_NAME" ]]; then
         CP="$JAR_NAME"
     fi
     echo "Running from JAR..."
-    java -Dfile.encoding=UTF-8 -cp "$CP" com.quanlydatvemaybay.Main
+    java -Dfile.encoding=UTF-8 -cp "$CP" "$MAIN_CLASS"
 else
     echo "Application not built yet. Running build.sh first..."
     chmod +x "$PROJECT_DIR/build.sh"
