@@ -4,11 +4,25 @@ import com.quanlybanhang.config.DatabaseConfig;
 import com.quanlybanhang.entity.User;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
 
     private Connection getConn() throws SQLException {
         return DatabaseConfig.getInstance().getConnection();
+    }
+
+    // ── LẤY TẤT CẢ NHÂN VIÊN ────────────────────────────────────────
+    /** Lấy tất cả nhân viên */
+    public List<User> getAll() {
+        String sql = "SELECT * FROM Users WHERE TrangThai = 1 ORDER BY Ten";
+        List<User> list = new ArrayList<>();
+        try (PreparedStatement ps = getConn().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
     }
 
     // ── ĐĂNG NHẬP ────────────────────────────────────────────────
