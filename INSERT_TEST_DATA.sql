@@ -5,7 +5,12 @@
 -- Chay bang:
 --   docker cp INSERT_TEST_DATA.sql oracle-db:/tmp/INSERT_TEST_DATA.sql
 --   docker exec -i oracle-db sqlplus quanlybh/abc123@//localhost:1521/FREEPDB1 @/tmp/INSERT_TEST_DATA.sql
+-- 
+-- Mật khẩu tài khoản là abc123, tùy máy ae mk là gì nhé
 -- ============================================================
+
+-- Tat tinh nang bien thay the cua SQL*Plus (tranh hieu sai '&' trong 'H&M')
+SET DEFINE OFF
 
 -- 1. ChatLieu
 INSERT INTO ChatLieu (Ten) VALUES (N'Cotton');
@@ -61,7 +66,7 @@ VALUES (N'Khuyến mãi mùa đông', DATE '2025-12-01', DATE '2026-02-28', N'Gi
 INSERT INTO ChucVu (Ten) VALUES (N'Admin');
 INSERT INTO ChucVu (Ten) VALUES (N'Nhân viên');
 INSERT INTO Users (Ten, Ho, Email, TaiKhoan, MatKhau, IdCV, TrangThai)
-VALUES (N'Khanh', N'Nguyễn', 'admin@local', 'admin', '123', 1, 1);
+VALUES (N'Khanh', N'Ngo', 'admin@local', 'admin', '123', 1, 1);
 
 -- 9. ChitietSP (10 sản phẩm mẫu)
 INSERT INTO ChitietSP (Ma, Ten, IdNsx, IdMauSac, IdDMuc, IdKC, IdCL, IdTH, IdKM, MoTa, SoLuongTon, GiaNhap, GiaBan, QrCode)

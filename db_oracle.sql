@@ -1,19 +1,9 @@
 -- =============================================================================
 -- Oracle schema — converted from SQL Server (db.sql)
--- Target: Oracle XE 21c trên Docker (PDB = XEPDB1)
+-- Chi tiết từng bước: xem HUONG_DAN_ORACLE.md trong repo.
 --
--- Tóm tắt các bước (chi tiết xem hướng dẫn):
---   docker exec -it oracle-db bash
---   sqlplus / as sysdba
---   SQL> ALTER SESSION SET CONTAINER = XEPDB1;
---   SQL> CREATE USER quanlybh IDENTIFIED BY YourPassword123
---          DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS;
---   SQL> GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE,
---             CREATE TRIGGER, CREATE VIEW TO quanlybh;
---   SQL> EXIT;
---   (Đăng nhập lại bằng quanlybh/XEPDB1 và chạy file này.)
---
--- JDBC: jdbc:oracle:thin:@//localhost:1521/XEPDB1
+-- Image gvenzl/oracle-free: PDB = FREEPDB1, SYS dùng ORACLE_PASSWORD.
+-- Image Oracle XE: thường PDB = XEPDB1 (đổi JDBC + lệnh sqlplus cho khớp).
 -- =============================================================================
 
 -- ---------------------------------------------------------------------------
