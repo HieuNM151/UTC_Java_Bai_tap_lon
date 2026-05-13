@@ -5,9 +5,10 @@ PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$PROJECT_DIR/src"
 BIN_DIR="$PROJECT_DIR/bin"
 LIB_DIR="$PROJECT_DIR/lib"
-JAR_NAME="quanlydatvemaybay.jar"
+JAR_NAME="quanlybanhang.jar"
+MAIN_CLASS="com.quanlybanhang.Main"
 
-echo "===== Quản Lý Đặt Vé Máy Bay - Build Script ====="
+echo "===== Quan Ly Ban Hang - Build Script ====="
 
 # Check Java
 if ! command -v javac &> /dev/null; then
@@ -69,7 +70,7 @@ echo "Creating JAR..."
 
 # Create manifest
 MANIFEST="$BIN_DIR/MANIFEST.MF"
-echo "Main-Class: com.quanlydatvemaybay.Main" > "$MANIFEST"
+echo "Main-Class: $MAIN_CLASS" > "$MANIFEST"
 if [[ -n "$JDBC_JAR" ]]; then
     JDBC_NAME=$(basename "$JDBC_JAR")
     echo "Class-Path: lib/$JDBC_NAME" >> "$MANIFEST"
@@ -90,7 +91,7 @@ echo "===== Build Complete ====="
 echo ""
 echo "To run the application:"
 if [[ -n "$JDBC_JAR" ]]; then
-    echo "  java -cp \"$JAR_NAME:$JDBC_JAR\" com.quanlydatvemaybay.Main"
+    echo "  java -cp \"$JAR_NAME:$JDBC_JAR\" $MAIN_CLASS"
 else
     echo "  java -jar $JAR_NAME"
 fi

@@ -5,17 +5,16 @@ import java.sql.SQLException;
 
 public class DatabaseConfig {
 
-    private static final String SERVER   = "localhost";
-    private static final int    PORT     = 1433;
-    private static final String DATABASE = "DuAn1";
-    private static final String USERNAME = "sa";           // đổi theo tài khoản SQL Server của bạn
-    private static final String PASSWORD = "Abc123$%^";       // đổi theo mật khẩu của bạn
+    /** Oracle trên Docker (image gvenzl/oracle-free) — PDB mặc định FREEPDB1. */
+    private static final String HOST         = "localhost";
+    private static final int    PORT         = 1521;
+    private static final String SERVICE_NAME = "FREEPDB1";
+    private static final String USERNAME     = "quanlybh";
+    private static final String PASSWORD     = "abc123";
 
+    /** Thin driver: @//host:port/service_name */
     private static final String URL =
-            "jdbc:sqlserver://" + SERVER + ":" + PORT
-                    + ";databaseName=" + DATABASE
-                    + ";encrypt=true"
-                    + ";trustServerCertificate=true";
+            "jdbc:oracle:thin:@//" + HOST + ":" + PORT + "/" + SERVICE_NAME;
 
     private static DatabaseConfig instance;
     private Connection connection;
@@ -32,10 +31,10 @@ public class DatabaseConfig {
     public Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             try {
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                Class.forName("oracle.jdbc.OracleDriver");
                 connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
             } catch (ClassNotFoundException e) {
-                throw new SQLException("SQL Server JDBC Driver not found: " + e.getMessage());
+                throw new SQLException("Oracle JDBC Driver not found: " + e.getMessage());
             }
         }
         return connection;

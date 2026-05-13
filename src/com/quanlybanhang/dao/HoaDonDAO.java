@@ -30,7 +30,7 @@ public class HoaDonDAO {
             String sqlHD = "INSERT INTO HoaDon (IdKH, IdNV, Ma, NgayTao, NgayThanhToan, TinhTrang, GhiChu, TongTien) " +
                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             int idHD = -1;
-            try (PreparedStatement ps = conn.prepareStatement(sqlHD, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement ps = conn.prepareStatement(sqlHD, new String[]{"ID"})) {
                 if (hd.getIdKH() != null) ps.setInt(1, hd.getIdKH()); else ps.setNull(1, Types.INTEGER);
                 ps.setInt(2, hd.getIdNV());
                 ps.setString(3, hd.getMa());
@@ -111,7 +111,7 @@ public class HoaDonDAO {
 
     /** Dem so hoa don hom nay */
     public int demHoaDonHomNay() {
-        String sql = "SELECT COUNT(*) FROM HoaDon WHERE CAST(NgayTao AS DATE) = CAST(GETDATE() AS DATE)";
+        String sql = "SELECT COUNT(*) FROM HoaDon WHERE TRUNC(NgayTao) = TRUNC(SYSDATE)";
         try (PreparedStatement ps = getConn().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
@@ -121,9 +121,9 @@ public class HoaDonDAO {
 
     /** Doanh thu hom nay (cac hoa don da thanh toan) */
     public BigDecimal doanhThuHomNay() {
-        String sql = "SELECT ISNULL(SUM(TongTien), 0) " +
+        String sql = "SELECT NVL(SUM(TongTien), 0) " +
                      "FROM HoaDon " +
-                     "WHERE CAST(NgayTao AS DATE) = CAST(GETDATE() AS DATE) " +
+                     "WHERE TRUNC(NgayTao) = TRUNC(SYSDATE) " +
                      "AND TinhTrang = 1";
         try (PreparedStatement ps = getConn().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
