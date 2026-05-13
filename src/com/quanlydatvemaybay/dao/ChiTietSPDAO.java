@@ -1,7 +1,7 @@
-package com.quanlybanhang.dao;
+package com.quanlydatvemaybay.dao;
 
-import com.quanlybanhang.config.DatabaseConfig;
-import com.quanlybanhang.entity.ChitietSP;
+import com.quanlydatvemaybay.config.DatabaseConfig;
+import com.quanlydatvemaybay.entity.ChitietSP;
 
 import java.sql.*;
 import java.util.ArrayList;

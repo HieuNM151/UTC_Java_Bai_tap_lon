@@ -1,4 +1,4 @@
-package com.quanlybanhang.config;
+package com.quanlydatvemaybay.config;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
