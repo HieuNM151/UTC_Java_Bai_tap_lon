@@ -153,27 +153,6 @@ public class LoginForm extends JFrame {
         btnDangNhap = buildButton("Đăng nhập", ACCENT, ACCENT_H);
         btnDangNhap.addActionListener(e -> handleLogin());
 
-        // ── Nút đăng ký ──
-        JPanel regRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
-        regRow.setBackground(BG_RIGHT);
-        regRow.setAlignmentX(LEFT_ALIGNMENT);
-        regRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        JLabel regHint = new JLabel("Chưa có tài khoản?");
-        regHint.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        regHint.setForeground(TEXT_GRAY);
-        JButton btnReg = new JButton("Đăng ký ngay");
-        btnReg.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnReg.setForeground(ACCENT);
-        btnReg.setContentAreaFilled(false);
-        btnReg.setBorderPainted(false);
-        btnReg.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnReg.addActionListener(e -> {
-            RegisterForm reg = new RegisterForm(this);
-            reg.setVisible(true);
-        });
-        regRow.add(regHint);
-        regRow.add(btnReg);
-
         // Enter để login
         KeyAdapter enterKey = new KeyAdapter() {
             @Override public void keyPressed(KeyEvent e) {
@@ -200,8 +179,6 @@ public class LoginForm extends JFrame {
         form.add(lblError);
         form.add(Box.createVerticalStrut(20));
         form.add(btnDangNhap);
-        form.add(Box.createVerticalStrut(12));
-        form.add(regRow);
 
         p.add(form);
         return p;
