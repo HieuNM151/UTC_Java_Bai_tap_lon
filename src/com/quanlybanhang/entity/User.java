@@ -1,6 +1,7 @@
 package com.quanlybanhang.entity;
 
 import java.time.LocalDate;
+import java.util.Locale;
 
 public class User {
     private int id;
@@ -11,6 +12,8 @@ public class User {
     private Boolean gioitinh;
     private String sdt;
     private Integer idCV;
+    /** Tên chức vụ (JOIN ChucVu), dùng để phân quyền hiển thị. */
+    private String tenChucVu;
     private String taiKhoan;
     private String matKhau;
     private String email;
@@ -60,6 +63,19 @@ public class User {
 
     public Integer getIdCV() { return idCV; }
     public void setIdCV(Integer idCV) { this.idCV = idCV; }
+
+    public String getTenChucVu() { return tenChucVu; }
+    public void setTenChucVu(String tenChucVu) { this.tenChucVu = tenChucVu; }
+
+    /** Quản trị: chức vụ tên chứa "admin"/"quản trị" hoặc IdCV = 1 (dữ liệu mẫu Admin đầu tiên). */
+    public boolean isAdmin() {
+        if (tenChucVu != null && !tenChucVu.isBlank()) {
+            String t = tenChucVu.trim().toLowerCase(Locale.ROOT);
+            if (t.contains("admin") || t.contains("quản trị") || t.contains("quan tri"))
+                return true;
+        }
+        return idCV != null && idCV == 1;
+    }
 
     public String getTaiKhoan() { return taiKhoan; }
     public void setTaiKhoan(String taiKhoan) { this.taiKhoan = taiKhoan; }

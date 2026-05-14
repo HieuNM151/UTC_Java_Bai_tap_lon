@@ -5,6 +5,8 @@ import com.quanlybanhang.ui.panels.SanPhamPanel;
 import com.quanlybanhang.ui.panels.HoaDonPanel;
 import com.quanlybanhang.ui.panels.KhachHangPanel;
 import com.quanlybanhang.ui.panels.DashboardPanel;
+import com.quanlybanhang.ui.panels.QuanLyNhanVienPanel;
+import com.quanlybanhang.ui.dialogs.NhanVienDialog;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -38,14 +40,13 @@ public class MainForm extends JFrame {
     private JLabel lblClock;
     private JLabel activeItem = null;
 
-    private static final String[] MENU_VI = {
-            "Tổng quan", "Bán hàng", "Sản phẩm",
-            "Khách hàng", "Hóa đơn", "Khuyến mãi", "Báo cáo"
+    private static final String[][] MENU_ADMIN = {
+            {"Tổng quan", "■"}, {"Bán hàng", "●"}, {"Sản phẩm", "▪"},
+            {"Khách hàng", "○"}, {"Hóa đơn", "≡"}, {"Quản lý nhân viên", "◆"}
     };
-
-    // Dùng ký tự ASCII đơn giản để tránh lỗi font
-    private static final String[] MENU_PREFIX = {
-            "■", "●", "▪", "○", "≡", "◆", "▶"
+    private static final String[][] MENU_STAFF = {
+            {"Tổng quan", "■"}, {"Bán hàng", "●"},
+            {"Khách hàng", "○"}, {"Hóa đơn", "≡"}
     };
 
     public MainForm(User user) {
@@ -101,8 +102,9 @@ public class MainForm extends JFrame {
         p.add(buildLogo());
         p.add(sideDivider());
 
-        for (int i = 0; i < MENU_VI.length; i++) {
-            JLabel item = buildMenuItem(MENU_VI[i], MENU_PREFIX[i], i == 0);
+        String[][] menu = currentUser.isAdmin() ? MENU_ADMIN : MENU_STAFF;
+        for (int i = 0; i < menu.length; i++) {
+            JLabel item = buildMenuItem(menu[i][0], menu[i][1], i == 0);
             p.add(item);
             if (i == 0) activeItem = item;
         }
@@ -213,9 +215,15 @@ public class MainForm extends JFrame {
     }
 
     private JPanel buildUserCard() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 14));
-        p.setOpaque(false);
-        p.setMaximumSize(new Dimension(220, 68));
+        JPanel outer = new JPanel();
+        outer.setOpaque(false);
+        outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
+        outer.setMaximumSize(new Dimension(220, 200));
+        outer.setBorder(new EmptyBorder(4, 12, 14, 12));
+
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        row.setOpaque(false);
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel avatar = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
@@ -240,12 +248,34 @@ public class MainForm extends JFrame {
         JLabel name = new JLabel(currentUser.getTen());
         name.setFont(getViFont(Font.BOLD, 12));
         name.setForeground(Color.WHITE);
-        JLabel role = new JLabel("Nhân viên");
+        String roleText = (currentUser.getTenChucVu() != null && !currentUser.getTenChucVu().isBlank())
+                ? currentUser.getTenChucVu()
+                : (currentUser.isAdmin() ? "Quản trị" : "Nhân viên");
+        JLabel role = new JLabel(roleText);
         role.setFont(getViFont(Font.PLAIN, 11));
         role.setForeground(TEXT_LIGHT);
         info.add(name);
         info.add(role);
 
+        row.add(avatar);
+        row.add(info);
+        outer.add(row);
+
+        if (currentUser.isAdmin()) {
+            outer.add(Box.createVerticalStrut(8));
+            JButton btnReg = new JButton("Đăng ký nhân viên");
+            btnReg.setFont(getViFont(Font.BOLD, 11));
+            btnReg.setForeground(ACCENT);
+            btnReg.setContentAreaFilled(false);
+            btnReg.setBorderPainted(false);
+            btnReg.setFocusPainted(false);
+            btnReg.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            btnReg.setAlignmentX(Component.LEFT_ALIGNMENT);
+            btnReg.addActionListener(e -> new NhanVienDialog(this, null, null, true).setVisible(true));
+            outer.add(btnReg);
+        }
+
+        outer.add(Box.createVerticalStrut(6));
         JButton btnOut = new JButton("Đăng xuất");
         btnOut.setFont(getViFont(Font.BOLD, 11));
         btnOut.setForeground(new Color(248, 113, 113));
@@ -253,6 +283,7 @@ public class MainForm extends JFrame {
         btnOut.setBorderPainted(false);
         btnOut.setFocusPainted(false);
         btnOut.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnOut.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnOut.addActionListener(e -> {
             int r = JOptionPane.showConfirmDialog(this,
                     "Bạn có chắc muốn đăng xuất?", "Đăng xuất",
@@ -262,11 +293,8 @@ public class MainForm extends JFrame {
                 SwingUtilities.invokeLater(() -> new LoginForm().setVisible(true));
             }
         });
-
-        p.add(avatar);
-        p.add(info);
-        p.add(btnOut);
-        return p;
+        outer.add(btnOut);
+        return outer;
     }
 
     private JSeparator sideDivider() {
@@ -287,7 +315,7 @@ public class MainForm extends JFrame {
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(MAIN_BG);
         contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        contentPanel.add(new DashboardPanel(), BorderLayout.CENTER);
+        contentPanel.add(new DashboardPanel(currentUser), BorderLayout.CENTER);
 
         w.add(contentPanel, BorderLayout.CENTER);
         return w;
@@ -492,7 +520,7 @@ public class MainForm extends JFrame {
         switch (menu) {
             case "Tổng quan" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-                panel = new DashboardPanel();
+                panel = new DashboardPanel(currentUser);
             }
             case "Bán hàng" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -509,6 +537,10 @@ public class MainForm extends JFrame {
             case "Hóa đơn" -> {
                 contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
                 panel = new HoaDonPanel();
+            }
+            case "Quản lý nhân viên" -> {
+                contentPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+                panel = new QuanLyNhanVienPanel(currentUser);
             }
             default -> {
                 contentPanel.setBorder(new EmptyBorder(24, 28, 24, 28));

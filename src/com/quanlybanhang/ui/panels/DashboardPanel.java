@@ -1,5 +1,6 @@
 package com.quanlybanhang.ui.panels;
 
+import com.quanlybanhang.entity.User;
 import com.quanlybanhang.service.StatisticsService;
 
 import javax.swing.*;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class DashboardPanel extends JPanel {
 
@@ -36,15 +38,41 @@ public class DashboardPanel extends JPanel {
     private JLabel lblInvoiceCount, lblRevenue, lblProfit, lblProfitMargin;
     private JTable tblTopProducts, tblInventory;
 
-    public DashboardPanel() {
+    /** Nhân viên: không hiển thị bộ lọc / số liệu / bảng thống kê. */
+    public DashboardPanel(User currentUser) {
+        Objects.requireNonNull(currentUser, "currentUser");
         setLayout(new BorderLayout(0, 16));
         setBackground(BG_COLOR);
         setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        if (!currentUser.isAdmin()) {
+            add(buildStaffSummaryPanel(currentUser), BorderLayout.CENTER);
+            return;
+        }
 
         add(buildFilterPanel(), BorderLayout.NORTH);
         add(buildMainPanel(), BorderLayout.CENTER);
 
         loadDashboard();
+    }
+
+    private JPanel buildStaffSummaryPanel(User u) {
+        JPanel wrap = new JPanel(new GridBagLayout());
+        wrap.setOpaque(false);
+        JLabel msg = new JLabel("<html><div style='width:420px;text-align:center'>"
+                + "<h2 style='color:#0f172a;margin:0'>Tổng quan</h2>"
+                + "<p style='color:#64748b;font-size:13px;margin-top:12px'>"
+                + "Báo cáo và thống kê chỉ dành cho quản trị viên.<br>"
+                + "Vui lòng dùng mục <b>Bán hàng</b> để phục vụ khách."
+                + "</p></div></html>");
+        msg.setHorizontalAlignment(SwingConstants.CENTER);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        wrap.add(msg, c);
+        return wrap;
     }
 
     private JPanel buildFilterPanel() {
