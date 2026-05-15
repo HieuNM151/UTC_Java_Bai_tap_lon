@@ -35,10 +35,15 @@ public class MainForm extends JFrame {
     private static final Color C_AMBER  = new Color(245, 158, 11);
     private static final Color C_ROSE   = new Color(244, 63,  94);
 
+    /** Lề trái sidebar (trùng menu). */
+    private static final int SIDEBAR_PAD_L = 12;
+    /** Độ rộng cột ký hiệu menu — chữ menu bắt đầu sau: PAD_L + PREFIX_W. */
+    private static final int SIDEBAR_MENU_PREFIX_W = 26;
+
     private final User currentUser;
     private JPanel contentPanel;
     private JLabel lblClock;
-    private JLabel activeItem = null;
+    private JPanel activeItem = null;
 
     private static final String[][] MENU_ADMIN = {
             {"Tổng quan", "■"}, {"Bán hàng", "●"}, {"Sản phẩm", "▪"},
@@ -104,7 +109,7 @@ public class MainForm extends JFrame {
 
         String[][] menu = currentUser.isAdmin() ? MENU_ADMIN : MENU_STAFF;
         for (int i = 0; i < menu.length; i++) {
-            JLabel item = buildMenuItem(menu[i][0], menu[i][1], i == 0);
+            JPanel item = buildMenuItem(menu[i][0], menu[i][1], i == 0);
             p.add(item);
             if (i == 0) activeItem = item;
         }
@@ -153,9 +158,10 @@ public class MainForm extends JFrame {
         return p;
     }
 
-    private JLabel buildMenuItem(String labelText, String prefix, boolean initActive) {
-        JLabel lbl = new JLabel("  " + prefix + "  " + labelText) {
-            @Override protected void paintComponent(Graphics g) {
+    private JPanel buildMenuItem(String labelText, String prefix, boolean initActive) {
+        JPanel row = new JPanel(new BorderLayout(0, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 if (Boolean.TRUE.equals(getClientProperty("active"))) {
@@ -171,47 +177,81 @@ public class MainForm extends JFrame {
                 super.paintComponent(g);
             }
         };
-        // ✅ Dùng getViFont() thay vì "Segoe UI Emoji"
-        lbl.setFont(getViFont(initActive ? Font.BOLD : Font.PLAIN, 13));
-        lbl.setForeground(initActive ? Color.WHITE : TEXT_LIGHT);
-        lbl.setBorder(new EmptyBorder(11, 12, 11, 12));
-        lbl.setMaximumSize(new Dimension(220, 44));
-        lbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        if (initActive) lbl.putClientProperty("active", true);
+        row.setOpaque(false);
+        row.setBorder(new EmptyBorder(11, SIDEBAR_PAD_L, 11, SIDEBAR_PAD_L));
+        row.setMaximumSize(new Dimension(220, 44));
+        row.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        row.putClientProperty("menuLabel", labelText);
 
-        lbl.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
-                if (!Boolean.TRUE.equals(lbl.getClientProperty("active"))) {
-                    lbl.putClientProperty("hover", true);
-                    lbl.setForeground(Color.WHITE);
-                    lbl.repaint();
+        JPanel prefixCol = new JPanel(new BorderLayout());
+        prefixCol.setOpaque(false);
+        prefixCol.setPreferredSize(new Dimension(SIDEBAR_MENU_PREFIX_W, 22));
+        JLabel prefixLbl = new JLabel(prefix, SwingConstants.RIGHT);
+        prefixLbl.setFont(getViFont(Font.PLAIN, 11));
+        prefixLbl.setForeground(initActive ? Color.WHITE : TEXT_LIGHT);
+        prefixCol.add(prefixLbl, BorderLayout.CENTER);
+
+        JLabel textLbl = new JLabel(labelText);
+        textLbl.setFont(getViFont(initActive ? Font.BOLD : Font.PLAIN, 13));
+        textLbl.setForeground(initActive ? Color.WHITE : TEXT_LIGHT);
+
+        row.add(prefixCol, BorderLayout.WEST);
+        row.add(textLbl, BorderLayout.CENTER);
+
+        row.putClientProperty("prefixLbl", prefixLbl);
+        row.putClientProperty("textLbl", textLbl);
+
+        if (initActive) {
+            row.putClientProperty("active", true);
+        }
+
+        row.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (!Boolean.TRUE.equals(row.getClientProperty("active"))) {
+                    row.putClientProperty("hover", true);
+                    prefixLbl.setForeground(Color.WHITE);
+                    textLbl.setForeground(Color.WHITE);
+                    row.repaint();
                 }
             }
-            @Override public void mouseExited(MouseEvent e) {
-                lbl.putClientProperty("hover", false);
-                if (!Boolean.TRUE.equals(lbl.getClientProperty("active")))
-                    lbl.setForeground(TEXT_LIGHT);
-                lbl.repaint();
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                row.putClientProperty("hover", false);
+                if (!Boolean.TRUE.equals(row.getClientProperty("active"))) {
+                    prefixLbl.setForeground(TEXT_LIGHT);
+                    textLbl.setForeground(TEXT_LIGHT);
+                }
+                row.repaint();
             }
-            @Override public void mouseClicked(MouseEvent e) {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
                 if (activeItem != null) {
                     activeItem.putClientProperty("active", false);
-                    // ✅ Sửa: dùng getViFont() thay vì "Segoe UI Emoji"
-                    activeItem.setFont(getViFont(Font.PLAIN, 13));
-                    activeItem.setForeground(TEXT_LIGHT);
+                    JLabel p = (JLabel) activeItem.getClientProperty("prefixLbl");
+                    JLabel t = (JLabel) activeItem.getClientProperty("textLbl");
+                    if (p != null) {
+                        p.setForeground(TEXT_LIGHT);
+                    }
+                    if (t != null) {
+                        t.setFont(getViFont(Font.PLAIN, 13));
+                        t.setForeground(TEXT_LIGHT);
+                    }
                     activeItem.repaint();
                 }
-                activeItem = lbl;
-                lbl.putClientProperty("active", true);
-                lbl.putClientProperty("hover", false);
-                // ✅ Sửa: dùng getViFont() thay vì "Segoe UI Emoji"
-                lbl.setFont(getViFont(Font.BOLD, 13));
-                lbl.setForeground(Color.WHITE);
-                lbl.repaint();
+                activeItem = row;
+                row.putClientProperty("active", true);
+                row.putClientProperty("hover", false);
+                prefixLbl.setForeground(Color.WHITE);
+                textLbl.setFont(getViFont(Font.BOLD, 13));
+                textLbl.setForeground(Color.WHITE);
+                row.repaint();
                 switchPanel(labelText);
             }
         });
-        return lbl;
+        return row;
     }
 
     private JPanel buildUserCard() {
@@ -219,72 +259,38 @@ public class MainForm extends JFrame {
         outer.setOpaque(false);
         outer.setLayout(new BoxLayout(outer, BoxLayout.Y_AXIS));
         outer.setMaximumSize(new Dimension(220, 200));
-        outer.setBorder(new EmptyBorder(4, 12, 14, 12));
-
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        row.setOpaque(false);
-        row.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JPanel avatar = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(ACCENT);
-                g2.fillOval(0, 0, 36, 36);
-                g2.setColor(Color.WHITE);
-                g2.setFont(getViFont(Font.BOLD, 15));
-                String s = String.valueOf(currentUser.getTen().charAt(0)).toUpperCase();
-                FontMetrics fm = g2.getFontMetrics();
-                g2.drawString(s, (36 - fm.stringWidth(s)) / 2, (36 + fm.getAscent() - fm.getDescent()) / 2);
-                g2.dispose();
-            }
-            @Override public Dimension getPreferredSize() { return new Dimension(36, 36); }
-        };
-        avatar.setOpaque(false);
+        outer.setBorder(new EmptyBorder(12, SIDEBAR_PAD_L, 18, SIDEBAR_PAD_L));
 
         JPanel info = new JPanel();
         info.setOpaque(false);
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
+        info.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         JLabel name = new JLabel(currentUser.getTen());
-        name.setFont(getViFont(Font.BOLD, 12));
+        name.setFont(getViFont(Font.BOLD, 13));
         name.setForeground(Color.WHITE);
+        name.setAlignmentX(Component.LEFT_ALIGNMENT);
         String roleText = (currentUser.getTenChucVu() != null && !currentUser.getTenChucVu().isBlank())
                 ? currentUser.getTenChucVu()
                 : (currentUser.isAdmin() ? "Quản trị" : "Nhân viên");
         JLabel role = new JLabel(roleText);
         role.setFont(getViFont(Font.PLAIN, 11));
         role.setForeground(TEXT_LIGHT);
+        role.setAlignmentX(Component.LEFT_ALIGNMENT);
         info.add(name);
+        info.add(Box.createVerticalStrut(2));
         info.add(role);
 
-        row.add(avatar);
-        row.add(info);
-        outer.add(row);
+        outer.add(info);
+        outer.add(Box.createVerticalStrut(12));
 
         if (currentUser.isAdmin()) {
-            outer.add(Box.createVerticalStrut(8));
-            JButton btnReg = new JButton("Đăng ký nhân viên");
-            btnReg.setFont(getViFont(Font.BOLD, 11));
-            btnReg.setForeground(ACCENT);
-            btnReg.setContentAreaFilled(false);
-            btnReg.setBorderPainted(false);
-            btnReg.setFocusPainted(false);
-            btnReg.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            btnReg.setAlignmentX(Component.LEFT_ALIGNMENT);
-            btnReg.addActionListener(e -> new NhanVienDialog(this, null, null, true).setVisible(true));
-            outer.add(btnReg);
+            outer.add(sidebarLink("Đăng ký nhân viên", ACCENT,
+                    () -> new NhanVienDialog(this, null, null, true).setVisible(true)));
+            outer.add(Box.createVerticalStrut(4));
         }
 
-        outer.add(Box.createVerticalStrut(6));
-        JButton btnOut = new JButton("Đăng xuất");
-        btnOut.setFont(getViFont(Font.BOLD, 11));
-        btnOut.setForeground(new Color(248, 113, 113));
-        btnOut.setContentAreaFilled(false);
-        btnOut.setBorderPainted(false);
-        btnOut.setFocusPainted(false);
-        btnOut.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnOut.setAlignmentX(Component.LEFT_ALIGNMENT);
-        btnOut.addActionListener(e -> {
+        outer.add(sidebarLink("Đăng xuất", new Color(248, 113, 113), () -> {
             int r = JOptionPane.showConfirmDialog(this,
                     "Bạn có chắc muốn đăng xuất?", "Đăng xuất",
                     JOptionPane.YES_NO_OPTION);
@@ -292,16 +298,37 @@ public class MainForm extends JFrame {
                 dispose();
                 SwingUtilities.invokeLater(() -> new LoginForm().setVisible(true));
             }
-        });
-        outer.add(btnOut);
+        }));
         return outer;
     }
 
-    private JSeparator sideDivider() {
-        JSeparator s = new JSeparator();
-        s.setMaximumSize(new Dimension(220, 1));
-        s.setForeground(new Color(51, 65, 85));
-        return s;
+    /** Liên kết sidebar: chữ thường (không HTML) để tránh nháy khi hover/repaint. */
+    private JLabel sidebarLink(String text, Color color, Runnable action) {
+        JLabel l = new JLabel(text);
+        l.setFont(getViFont(Font.BOLD, 11));
+        l.setForeground(color);
+        l.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        l.setAlignmentX(Component.LEFT_ALIGNMENT);
+        l.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                action.run();
+            }
+        });
+        return l;
+    }
+
+    private JPanel sideDivider() {
+        JPanel line = new JPanel() {
+            @Override protected void paintComponent(Graphics g) {
+                g.setColor(new Color(51, 65, 85));
+                g.fillRect(0, getHeight() / 2, getWidth(), 1);
+            }
+        };
+        line.setOpaque(false);
+        line.setAlignmentX(Component.LEFT_ALIGNMENT);
+        line.setPreferredSize(new Dimension(220, 10));
+        line.setMaximumSize(new Dimension(Integer.MAX_VALUE, 10));
+        return line;
     }
 
     // ══════════════════════════════════════════════════════
@@ -322,7 +349,7 @@ public class MainForm extends JFrame {
     }
 
     private JPanel buildTopBar() {
-        JPanel p = new JPanel(new BorderLayout());
+        JPanel p = new JPanel(new GridBagLayout());
         p.setBackground(TOPBAR_BG);
         p.setBorder(BorderFactory.createCompoundBorder(
                 new MatteBorder(0, 0, 1, 0, BORDER_C),
@@ -333,11 +360,22 @@ public class MainForm extends JFrame {
         greeting.setForeground(TEXT_DARK);
 
         lblClock = new JLabel();
-        lblClock.setFont(getViFont(Font.PLAIN, 13));
+        lblClock.setFont(getViFont(Font.PLAIN, 14));
         lblClock.setForeground(TEXT_MID);
 
-        p.add(greeting, BorderLayout.WEST);
-        p.add(lblClock, BorderLayout.EAST);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.LINE_START;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.insets = new Insets(0, 0, 0, 16);
+        p.add(greeting, c);
+
+        c.gridx = 1;
+        c.weightx = 0;
+        c.anchor = GridBagConstraints.LINE_END;
+        c.insets = new Insets(0, 0, 0, 0);
+        p.add(lblClock, c);
         return p;
     }
 

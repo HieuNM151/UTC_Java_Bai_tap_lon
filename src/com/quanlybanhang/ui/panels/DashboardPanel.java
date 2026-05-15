@@ -33,6 +33,7 @@ public class DashboardPanel extends JPanel {
     private JComboBox<Integer> cbYear, cbMonth;
     private JButton btnApply;
     private JLabel lblStartDate, lblEndDate;
+    private JLabel lblYear, lblMonth;
     private JSpinner spnStartDate, spnEndDate;
 
     private JLabel lblInvoiceCount, lblRevenue, lblProfit, lblProfitMargin;
@@ -76,102 +77,109 @@ public class DashboardPanel extends JPanel {
     }
 
     private JPanel buildFilterPanel() {
-        JPanel p = new JPanel();
+        JPanel p = new JPanel(new BorderLayout(16, 0));
         p.setBackground(CARD_BG);
-        p.setBorder(new MatteBorder(0, 0, 1, 0, BORDER_COLOR));
-        p.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        p.setBorder(BorderFactory.createCompoundBorder(
+                new MatteBorder(0, 0, 1, 0, BORDER_COLOR),
+                new EmptyBorder(12, 16, 12, 16)));
 
-        // Filter type
+        FlowLayout fl = new FlowLayout(FlowLayout.LEFT, 10, 8);
+        fl.setAlignOnBaseline(true);
+        JPanel row = new JPanel(fl);
+        row.setOpaque(false);
+
+        Font labelFont = new Font("Segoe UI", Font.PLAIN, 12);
+        int ctrlH = 30;
+
         JLabel lbl1 = new JLabel("Thống kê theo:");
-        lbl1.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        p.add(lbl1);
+        lbl1.setFont(labelFont);
+        lbl1.setForeground(LABEL_COLOR);
+        row.add(lbl1);
 
         cbFilter = new JComboBox<>(new String[]{"Ngày", "Tháng", "Năm", "Khoảng ngày"});
-        cbFilter.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        cbFilter.setPreferredSize(new Dimension(120, 30));
+        cbFilter.setFont(labelFont);
+        cbFilter.setPreferredSize(new Dimension(128, ctrlH));
         cbFilter.addActionListener(e -> updateFilterUI());
-        p.add(cbFilter);
+        row.add(cbFilter);
 
-        // Day selector
-        JLabel lblDay = new JLabel("Ngày:");
-        lblDay.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblDay.setVisible(true);
-        p.add(lblDay);
+        lblDay = new JLabel("Ngày:");
+        lblDay.setFont(labelFont);
+        lblDay.setForeground(LABEL_COLOR);
+        row.add(lblDay);
 
         SpinnerDateModel dayModel = new SpinnerDateModel();
         dayModel.setValue(java.sql.Date.valueOf(LocalDate.now()));
         JSpinner spnDay = new JSpinner(dayModel);
         JSpinner.DateEditor deDay = new JSpinner.DateEditor(spnDay, "dd/MM/yyyy");
         spnDay.setEditor(deDay);
-        spnDay.setPreferredSize(new Dimension(110, 30));
-        spnDay.setVisible(true);
-        p.add(spnDay);
+        spnDay.setPreferredSize(new Dimension(118, ctrlH));
+        row.add(spnDay);
 
-        // Year
-        JLabel lbl2 = new JLabel("Năm:");
-        lbl2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        p.add(lbl2);
+        lblYear = new JLabel("Năm:");
+        lblYear.setFont(labelFont);
+        lblYear.setForeground(LABEL_COLOR);
+        row.add(lblYear);
 
         Integer[] years = new Integer[5];
         int currentYear = LocalDate.now().getYear();
         for (int i = 0; i < 5; i++) years[i] = currentYear - i;
         cbYear = new JComboBox<>(years);
-        cbYear.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        cbYear.setPreferredSize(new Dimension(80, 30));
-        p.add(cbYear);
+        cbYear.setFont(labelFont);
+        cbYear.setPreferredSize(new Dimension(84, ctrlH));
+        row.add(cbYear);
 
-        // Month
-        JLabel lbl3 = new JLabel("Tháng:");
-        lbl3.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        p.add(lbl3);
+        lblMonth = new JLabel("Tháng:");
+        lblMonth.setFont(labelFont);
+        lblMonth.setForeground(LABEL_COLOR);
+        row.add(lblMonth);
 
         Integer[] months = new Integer[12];
         for (int i = 0; i < 12; i++) months[i] = i + 1;
         cbMonth = new JComboBox<>(months);
-        cbMonth.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        cbMonth.setPreferredSize(new Dimension(70, 30));
+        cbMonth.setFont(labelFont);
+        cbMonth.setPreferredSize(new Dimension(72, ctrlH));
         cbMonth.setSelectedItem(LocalDate.now().getMonthValue());
-        p.add(cbMonth);
+        row.add(cbMonth);
 
-        // Date range
         lblStartDate = new JLabel("Từ ngày:");
-        lblStartDate.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblStartDate.setFont(labelFont);
+        lblStartDate.setForeground(LABEL_COLOR);
         lblStartDate.setVisible(false);
-        p.add(lblStartDate);
+        row.add(lblStartDate);
 
         SpinnerDateModel startModel = new SpinnerDateModel();
         startModel.setValue(java.sql.Date.valueOf(LocalDate.now().minusDays(30)));
         spnStartDate = new JSpinner(startModel);
         JSpinner.DateEditor deStart = new JSpinner.DateEditor(spnStartDate, "dd/MM/yyyy");
         spnStartDate.setEditor(deStart);
-        spnStartDate.setPreferredSize(new Dimension(110, 30));
+        spnStartDate.setPreferredSize(new Dimension(118, ctrlH));
         spnStartDate.setVisible(false);
-        p.add(spnStartDate);
+        row.add(spnStartDate);
 
         lblEndDate = new JLabel("Đến ngày:");
-        lblEndDate.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblEndDate.setFont(labelFont);
+        lblEndDate.setForeground(LABEL_COLOR);
         lblEndDate.setVisible(false);
-        p.add(lblEndDate);
+        row.add(lblEndDate);
 
         SpinnerDateModel endModel = new SpinnerDateModel();
         endModel.setValue(java.sql.Date.valueOf(LocalDate.now()));
         spnEndDate = new JSpinner(endModel);
         JSpinner.DateEditor deEnd = new JSpinner.DateEditor(spnEndDate, "dd/MM/yyyy");
         spnEndDate.setEditor(deEnd);
-        spnEndDate.setPreferredSize(new Dimension(110, 30));
+        spnEndDate.setPreferredSize(new Dimension(118, ctrlH));
         spnEndDate.setVisible(false);
-        p.add(spnEndDate);
+        row.add(spnEndDate);
 
-        // Apply button
         btnApply = createStyledButton("Cập nhật", ACCENT);
-        btnApply.setPreferredSize(new Dimension(120, 30));
+        btnApply.setPreferredSize(new Dimension(112, ctrlH));
         btnApply.addActionListener(e -> loadDashboard());
-        p.add(btnApply);
 
-        // Lưu spnDay vào biến instance
+        p.add(row, BorderLayout.CENTER);
+        p.add(btnApply, BorderLayout.EAST);
+
         this.spnDay = spnDay;
-        this.lblDay = lblDay;
-
+        updateFilterUI();
         return p;
     }
 
@@ -181,24 +189,27 @@ public class DashboardPanel extends JPanel {
     private void updateFilterUI() {
         String selected = (String) cbFilter.getSelectedItem();
 
-        // Ẩn tất cả trước
         lblDay.setVisible(false);
         spnDay.setVisible(false);
+        lblYear.setVisible(false);
         cbYear.setVisible(false);
+        lblMonth.setVisible(false);
         cbMonth.setVisible(false);
         lblStartDate.setVisible(false);
         spnStartDate.setVisible(false);
         lblEndDate.setVisible(false);
         spnEndDate.setVisible(false);
 
-        // Hiển thị theo loại thống kê
         if ("Ngày".equals(selected)) {
             lblDay.setVisible(true);
             spnDay.setVisible(true);
         } else if ("Tháng".equals(selected)) {
+            lblYear.setVisible(true);
             cbYear.setVisible(true);
+            lblMonth.setVisible(true);
             cbMonth.setVisible(true);
         } else if ("Năm".equals(selected)) {
+            lblYear.setVisible(true);
             cbYear.setVisible(true);
         } else if ("Khoảng ngày".equals(selected)) {
             lblStartDate.setVisible(true);
@@ -206,6 +217,8 @@ public class DashboardPanel extends JPanel {
             lblEndDate.setVisible(true);
             spnEndDate.setVisible(true);
         }
+        revalidate();
+        repaint();
     }
 
     private JPanel buildMainPanel() {
@@ -218,29 +231,38 @@ public class DashboardPanel extends JPanel {
         p.add(buildStatsPanel(), BorderLayout.NORTH);
         p.add(buildTablesPanel(), BorderLayout.CENTER);
 
-        JScrollPane scroll = new JScrollPane(p);
-        scroll.setBackground(BG_COLOR);
-        scroll.setBorder(null);
-        scroll.getViewport().setBackground(BG_COLOR);
-
-        wrapper.add(scroll, BorderLayout.CENTER);
+        wrapper.add(p, BorderLayout.CENTER);
         return wrapper;
     }
 
     private JPanel buildStatsPanel() {
-        JPanel p = new JPanel(new GridLayout(1, 4, 12, 0));
+        JPanel p = new JPanel(new GridBagLayout());
         p.setOpaque(false);
 
-        p.add(createStatCard("■ Số hóa đơn", lblInvoiceCount = createValueLabel("0"), SUCCESS));
-        p.add(createStatCard("● Doanh thu", lblRevenue = createValueLabel("₫0"), ACCENT));
-        p.add(createStatCard("▲ Lãi suất", lblProfit = createValueLabel("₫0"), WARNING));
-        p.add(createStatCard("% Biên lợi", lblProfitMargin = createValueLabel("0%"), DANGER));
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridy = 0;
+        c.fill = GridBagConstraints.BOTH;
+        c.weighty = 0;
+        c.insets = new Insets(0, 0, 0, 12);
+        c.weightx = 1;
+
+        c.gridx = 0;
+        p.add(createStatCard("Số hóa đơn", lblInvoiceCount = createValueLabel("0"), SUCCESS), c);
+        c.gridx = 1;
+        c.insets = new Insets(0, 0, 0, 12);
+        p.add(createStatCard("Doanh thu", lblRevenue = createValueLabel("₫0"), ACCENT), c);
+        c.gridx = 2;
+        c.insets = new Insets(0, 0, 0, 12);
+        p.add(createStatCard("Lãi suất", lblProfit = createValueLabel("₫0"), WARNING), c);
+        c.gridx = 3;
+        c.insets = new Insets(0, 0, 0, 0);
+        p.add(createStatCard("% Biên lợi", lblProfitMargin = createValueLabel("0%"), DANGER), c);
 
         return p;
     }
 
     private JPanel createStatCard(String title, JLabel valueLabel, Color color) {
-        JPanel card = new JPanel(new BorderLayout(0, 12)) {
+        JPanel card = new JPanel(new BorderLayout(0, 10)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
@@ -254,12 +276,45 @@ public class DashboardPanel extends JPanel {
         };
         card.setOpaque(false);
         card.setBorder(new EmptyBorder(16, 16, 16, 16));
+        card.setMinimumSize(new Dimension(0, 108));
+
+        JPanel top = new JPanel(new BorderLayout(0, 0));
+        top.setOpaque(false);
+
+        JPanel swatch = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(color);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 4, 4);
+                g2.dispose();
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(10, 10);
+            }
+
+            @Override
+            public Dimension getMaximumSize() {
+                return getPreferredSize();
+            }
+        };
+        swatch.setOpaque(false);
 
         JLabel lblTitle = new JLabel(title);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblTitle.setForeground(color);
 
-        card.add(lblTitle, BorderLayout.NORTH);
+        JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        titleRow.setOpaque(false);
+        titleRow.add(swatch);
+        titleRow.add(lblTitle);
+
+        top.add(titleRow, BorderLayout.WEST);
+        card.add(top, BorderLayout.NORTH);
+        valueLabel.setVerticalAlignment(SwingConstants.TOP);
         card.add(valueLabel, BorderLayout.CENTER);
 
         return card;
@@ -273,11 +328,20 @@ public class DashboardPanel extends JPanel {
     }
 
     private JPanel buildTablesPanel() {
-        JPanel p = new JPanel(new GridLayout(1, 2, 12, 0));
+        JPanel p = new JPanel(new GridBagLayout());
         p.setOpaque(false);
 
-        p.add(buildTablePanel("Sản phẩm bán chạy nhất", buildTopProductsTable()));
-        p.add(buildTablePanel("Sản phẩm tồn kho", buildInventoryTable()));
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridy = 0;
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 0.5;
+        c.weighty = 1;
+        c.insets = new Insets(0, 0, 0, 12);
+        c.gridx = 0;
+        p.add(buildTablePanel("Sản phẩm bán chạy nhất", buildTopProductsTable()), c);
+        c.gridx = 1;
+        c.insets = new Insets(0, 0, 0, 0);
+        p.add(buildTablePanel("Sản phẩm tồn kho", buildInventoryTable()), c);
 
         return p;
     }
@@ -306,6 +370,8 @@ public class DashboardPanel extends JPanel {
         scroll.setBorder(null);
         scroll.setBackground(CARD_BG);
         scroll.getViewport().setBackground(CARD_BG);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         card.add(lblTitle, BorderLayout.NORTH);
         card.add(scroll, BorderLayout.CENTER);
@@ -326,6 +392,7 @@ public class DashboardPanel extends JPanel {
         tblTopProducts.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         tblTopProducts.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
         tblTopProducts.setRowHeight(28);
+        tblTopProducts.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         return tblTopProducts;
     }
 
@@ -342,6 +409,7 @@ public class DashboardPanel extends JPanel {
         tblInventory.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         tblInventory.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
         tblInventory.setRowHeight(28);
+        tblInventory.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         return tblInventory;
     }
 
